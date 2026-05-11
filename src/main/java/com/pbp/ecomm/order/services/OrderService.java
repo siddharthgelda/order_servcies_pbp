@@ -3,7 +3,9 @@ package com.pbp.ecomm.order.services;
 import com.pbp.ecomm.order.client.ProductClient;
 import com.pbp.ecomm.order.dto.*;
 import com.pbp.ecomm.order.mapper.OrderMapper;
-import com.pbp.ecomm.order.model.*;
+import com.pbp.ecomm.order.model.Order;
+import com.pbp.ecomm.order.model.OrderItem;
+import com.pbp.ecomm.order.model.OrderStatus;
 import com.pbp.ecomm.order.repo.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,6 +83,7 @@ public class OrderService {
             throw new RuntimeException(e);
         }
     }
+
     @Transactional(readOnly = true)
     public OrderDTO findById(String id) throws Exception {
         return orderRepo.findByIdWithItems(id).map(orderMapper::toDTO)
@@ -107,6 +110,7 @@ public class OrderService {
                     .map(orderMapper::toSummaryDTO);
         return orderRepo.findAllByOrderByCreatedAtDesc(pageable).map(orderMapper::toSummaryDTO);
     }
+
     public OrderDTO cancel(UUID orderId, UUID userId, String reason) throws Exception {
         Order order = orderRepo.findByIdWithItems(orderId.toString())
                 .orElseThrow(() -> new Exception("Order not found: " + orderId));
@@ -122,6 +126,7 @@ public class OrderService {
         log.info("Order cancelled id={} userId={}", orderId, userId);
         return orderMapper.toDTO(order);
     }
+
     public OrderDTO updateStatus(UUID orderId, UpdateOrderStatusRequest req, String changedBy) throws Exception {
         Order order = orderRepo.findByIdWithItems(orderId.toString())
                 .orElseThrow(() -> new Exception("Order not found: " + orderId));
